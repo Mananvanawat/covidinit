@@ -1,154 +1,142 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:covidinit/loginPage.dart';
 import 'package:flutter/material.dart';
-import 'gmaps.dart';
-
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+import 'package:covidinit/register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'showRequest.dart';
+import 'MyRequest.dart';
+void main()=>runApp(Login());
+String x;
+class Login extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: MyHome());
+    // TODO: implement build
+    return(
+        MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: LoginPage(),
+        )
+    );
   }
 }
 
-class MyHome extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _MyHomeState createState() => _MyHomeState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _MyHomeState extends State<MyHome> {
-  String name;
-  var phone;
-  var address;
-  var lat;
-  var long;
-  var uid;
-  String dropdownValue = "Infectious";
+class _LoginPageState extends State<LoginPage> {
+  String dropdownValue = "User";
+  TextEditingController t1 = new TextEditingController();
+  TextEditingController t2 = new TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: true,
-      appBar: AppBar(
-        title: Text('Make a Request'),
-        backgroundColor: Colors.redAccent,
-      ),
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    name = text;
-                  },
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(title: Text('Login')),
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * .7,
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextFormField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: t1,
                   decoration: InputDecoration(
-                    hintText: 'Name',
+                    labelText: 'Email',
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    phone = text;
-                  },
-                  decoration: InputDecoration(hintText: 'Mobile No.'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    address = text;
-                  },
+                TextFormField(
+                  controller: t2,
+                  obscureText: true,
                   decoration: InputDecoration(
-                    suffixIcon: FlatButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) => GMaps()));
-                        },
-                        child: Icon(Icons.map)),
-                    hintText: 'Address',
+                    labelText: 'Password',
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
                   children: <Widget>[
-                    Text("Type of Waste: "),
+
+                    Text('Login as:-'),
+                    SizedBox(width: 100,),
                     DropdownButton<String>(
                       value: dropdownValue,
                       icon: Icon(Icons.arrow_downward),
                       iconSize: 24,
                       elevation: 16,
-                      style: TextStyle(color: Colors.deepPurple),
+                      style: TextStyle(
+                          color: Colors.deepPurple
+                      ),
                       underline: Container(
                         height: 2,
+
                       ),
                       onChanged: (String newValue) {
                         setState(() {
                           dropdownValue = newValue;
                         });
                       },
-                      items: <String>[
-                        'Infectious','Radio Active','Sharps','Other'
-                      ].map<DropdownMenuItem<String>>((String value) {
+                      items: <String>['User', 'Municipalty']
+                          .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
                         );
-                      }).toList(),
+                      })
+                          .toList(),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 220),
-              Container(
-                height: 50,
-                width: 270,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.black),
-                  ),
-                  color: Colors.redAccent[200],
-                  onPressed: () {
-                    Firestore.instance
-                        .collection('requests')
-                        .document()
-                        .setData({
-                      'Name': name,
-                      'Phone': phone,
-                      'Address': address,
-                      'Latitude': latitude,
-                      'Longitude': longitude,
-                      'Type': dropdownValue,
-                      'Uid': x,
-                      'Status': 'pending'
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    'Make Request!',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
+
+                SizedBox(
+                  height: 20,
                 ),
-              ),
-            ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      child: RaisedButton(
+                        onPressed: () {
+                          signIn();
+                          if(dropdownValue=="User")
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MyRequest()));
+                          if(dropdownValue=="Municipalty")
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MyApp1()));
+                        },
+                        child: Text('Login'),
+                      ),
+                    ),
+                    Container(
+                      child: RaisedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterPage(),
+                              ));
+                        },
+                        child: Text('Register'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  signIn() async{
+    try{
+      _auth.signInWithEmailAndPassword(email: t1.text, password: t2.text);
+      FirebaseUser user = await _auth.currentUser();
+      x = user.uid;
+
+    }catch(e){
+      print('Error');
+    }}
 }
