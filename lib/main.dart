@@ -100,11 +100,14 @@ class _LoginPageState extends State<LoginPage> {
                       child: RaisedButton(
                         onPressed: () {
                           signIn();
-                          if(dropdownValue=="User")
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MyRequest()));
-                          if(dropdownValue=="Municipalty")
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MyApp1()));
-                        },
+
+                            if (dropdownValue == "User")
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => MyRequest()));
+                            if (dropdownValue == "Municipalty")
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => MyApp1()));
+                          },
                         child: Text('Login'),
                       ),
                     ),
@@ -135,6 +138,7 @@ class _LoginPageState extends State<LoginPage> {
       _auth.signInWithEmailAndPassword(email: t1.text, password: t2.text);
       FirebaseUser user = await _auth.currentUser();
       x = user.uid;
+
 
     }catch(e){
       print('Error');
