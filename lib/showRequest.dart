@@ -1,4 +1,7 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:covidinit/showAll.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'showOnMap.dart';
@@ -7,7 +10,7 @@ class MyApp1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: true,
+      debugShowCheckedModeBanner: false,
       title: 'Change It',
       home: PendingRequests(),
     );
@@ -39,6 +42,7 @@ class _PendingRequestsState extends State<PendingRequests> {
                   phone: doc['Phone'].toString(),
                   type: doc['Type'].toString(),
                   uid: doc['UID'].toString(),
+                  st:'Mark as complete'
                 ));
               });
             },
@@ -58,8 +62,16 @@ class _PendingRequestsState extends State<PendingRequests> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.redAccent,
+          child: Icon(Icons.map),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>SeeAll()));
+          },
+
+        ),
         appBar: AppBar(
-          title: Text('Pending Requests'),
+          title: Center(child: Text('Pending Requests')),
           backgroundColor: Colors.redAccent,
         ),
         body: ListView.builder(
@@ -122,28 +134,15 @@ class _PendingRequestsState extends State<PendingRequests> {
                               Expanded(
                                   child: RaisedButton(
                                 onPressed: (){
-
-                                  setState(() {
-                                    print('Enters');
-                                    Firestore.instance
-                                        .collection('requests')
-                                        .where('Uid', isEqualTo: pendingRequests[index].uid)
-                                        .snapshots()
-                                        .listen((data) =>
-                                            data.documents.forEach((doc) {
-                                              print(doc);
-                                              Firestore.instance
-                                                  .collection('requests')
-                                                  .document(doc.documentID)
-                                                  .updateData({
-                                                "Status":
-                                                    "Complete"
-                                              });
-                                            }));
-                                  });
+                                    setState(() {
+                                      pendingRequests[index].st='Completed';
+                                    });
                                 },
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16))
+                                    ),
                                 child: Text(
-                                  'Complete',
+                                  pendingRequests[index].st
                                 ),
                                 color: Colors.green[200],
                               )),
@@ -152,6 +151,9 @@ class _PendingRequestsState extends State<PendingRequests> {
                               ),
                               Expanded(
                                   child: RaisedButton(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(bottomRight: Radius.circular(16))
+                                    ),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
@@ -184,6 +186,7 @@ class _PendingRequestsState extends State<PendingRequests> {
             );
           },
         ),
+
       ),
     );
   }
@@ -197,6 +200,7 @@ class Requests {
   String phone;
   String type;
   String uid;
+  String st;
 
   Requests({
     this.address,
@@ -206,5 +210,6 @@ class Requests {
     this.phone,
     this.type,
     this.uid,
+    this.st
   });
 }

@@ -1,157 +1,123 @@
-
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:covidinit/main.dart';
+import 'package:covidinit/MyRequest.dart';
+import 'package:covidinit/register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'gmaps.dart';
-import 'MyRequest.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class MyApp extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: MyHome());
-  }
-}
+String x;
 
-class MyHome extends StatefulWidget {
-  @override
-  _MyHomeState createState() => _MyHomeState();
-}
-
-class _MyHomeState extends State<MyHome> {
-  String name;
-  var phone;
-  var address;
-  var lat;
-  var long;
-  var uid;
-  String dropdownValue = "Infectious";
+class _LoginPageState extends State<LoginPage> {
+  String dropdownValue = "User";
+  TextEditingController t1 = new TextEditingController();
+  TextEditingController t2 = new TextEditingController();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        title: Text('Make a Request'),
-        backgroundColor: Colors.redAccent,
-      ),
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    name = text;
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Name',
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    phone = text;
-                  },
-                  decoration: InputDecoration(hintText: 'Mobile No.'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    address = text;
-                  },
-                  decoration: InputDecoration(
-                    suffixIcon: FlatButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) => GMaps()));
-                        },
-                        child: Icon(Icons.map)),
-                    hintText: 'Address',
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Type of Waste: "),
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_downward),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.deepPurple),
-                      underline: Container(
-                        height: 2,
-                      ),
-                      onChanged: (String newValue) {
-                        setState(() {
-                          dropdownValue = newValue;
-                        });
-                      },
-                      items: <String>[
-                        'Infectious','Radio Active','Sharps','Other'
-                      ].map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 220),
-              Container(
-                height: 50,
-                width: 270,
-                child: RaisedButton(
+      key: scaffoldKey,
 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.black),
+
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+
+            width: MediaQuery.of(context).size.width * .7,
+            child: Form(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 100),
+                  Text('LOGIN',style: GoogleFonts.aclonica(fontSize: 40,color: Colors.redAccent),),
+                  SizedBox(height: 200,),
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: t1,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                    ),
                   ),
-                  color: Colors.redAccent[200],
-                  onPressed: () {
-                    Firestore.instance
-                        .collection('requests')
-                        .document()
-                        .setData({
-                      'Name': name,
-                      'Phone': phone,
-                      'Address': address,
-                      'Latitude': latitude,
-                      'Longitude': longitude,
-                      'Type': dropdownValue,
-                      'Uid': x,
-                      'Status': 'pending'
-                    });
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MyRequest()));
-                  },
-                  child: Text(
-                    'Make Request!',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  SizedBox(height: 10,),
+                  TextFormField(
+                    controller: t2,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                    ),
                   ),
-                ),
+                  SizedBox(height: 30,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        child: RaisedButton(
+                          color: Colors.redAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)
+                          ),
+                          onPressed: () {
+                            signIn();
+                          },
+                          child: Text('Login',style: TextStyle(color: Colors.white),),
+                        ),
+                      ),
+                      SizedBox(width: 20,),
+                      Container(
+                        child: RaisedButton(
+                          color: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16)
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RegisterPage(),
+                                ));
+                          },
+                          child: Text('Register',style: TextStyle(color: Colors.white),),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  signIn() async {
+    //   String message;
+
+    try {
+      await _auth.signInWithEmailAndPassword(email: t1.text, password: t2.text);
+      FirebaseUser user = await _auth.currentUser();
+      x = user.uid;
+      showSnackbar('Logged in');
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyRequest()));
+    } catch (e) {
+      if (e is PlatformException) {
+        showSnackbar(e.message);
+      }
+    }
+//
+  }
+
+  void showSnackbar(String message) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
       ),
     );
   }

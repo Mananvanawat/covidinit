@@ -32,6 +32,7 @@ class _MyAppState extends State<showOnMap> {
     _markers.add(Marker(
         markerId: MarkerId('marker1'), position: LatLng(latitude, longitude)));
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
         home: Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(

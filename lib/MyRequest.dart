@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:covidinit/loginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'loginPage.dart';
-import 'main.dart';
+import 'createRequest.dart';
 
 class MyRequest extends StatelessWidget {
   @override
@@ -64,7 +64,10 @@ class _PendingRequestsState extends State<PendingRequests> {
             IconButton(
                 icon: Icon(Icons.add),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context)=>MyApp()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => MyApp()));
                 })
           ],
         ),

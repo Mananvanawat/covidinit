@@ -43,6 +43,7 @@ class _MyAppState extends State<GMaps> {
     }
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
         home: Scaffold(
             resizeToAvoidBottomPadding: false,
             appBar: AppBar(
