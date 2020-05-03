@@ -1,157 +1,106 @@
-
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:covidinit/main.dart';
+import 'package:covidinit/MyRequest.dart';
+import 'package:covidinit/register.dart';
+import 'package:covidinit/showRequest.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'gmaps.dart';
-import 'MyRequest.dart';
+import 'package:flutter/services.dart';
 
-class MyApp extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: MyHome());
-  }
-}
+String x;
 
-class MyHome extends StatefulWidget {
-  @override
-  _MyHomeState createState() => _MyHomeState();
-}
-
-class _MyHomeState extends State<MyHome> {
-  String name;
-  var phone;
-  var address;
-  var lat;
-  var long;
-  var uid;
-  String dropdownValue = "Infectious";
+class _LoginPageState extends State<LoginPage> {
+  String dropdownValue = "User";
+  TextEditingController t1 = new TextEditingController();
+  TextEditingController t2 = new TextEditingController();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        title: Text('Make a Request'),
-        backgroundColor: Colors.redAccent,
-      ),
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    name = text;
-                  },
+      appBar: AppBar(title: Text('Login')),
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * .7,
+          child: Form(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextFormField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: t1,
                   decoration: InputDecoration(
-                    hintText: 'Name',
+                    labelText: 'Email',
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    phone = text;
-                  },
-                  decoration: InputDecoration(hintText: 'Mobile No.'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (text) {
-                    address = text;
-                  },
+                TextFormField(
+                  controller: t2,
+                  obscureText: true,
                   decoration: InputDecoration(
-                    suffixIcon: FlatButton(
+                    labelText: 'Password',
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      child: RaisedButton(
+                        onPressed: () {
+                          signIn();
+                        },
+                        child: Text('Login'),
+                      ),
+                    ),
+                    Container(
+                      child: RaisedButton(
                         onPressed: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (BuildContext context) => GMaps()));
+                                builder: (context) => RegisterPage(),
+                              ));
                         },
-                        child: Icon(Icons.map)),
-                    hintText: 'Address',
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text("Type of Waste: "),
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_downward),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.deepPurple),
-                      underline: Container(
-                        height: 2,
+                        child: Text('Register'),
                       ),
-                      onChanged: (String newValue) {
-                        setState(() {
-                          dropdownValue = newValue;
-                        });
-                      },
-                      items: <String>[
-                        'Infectious','Radio Active','Sharps','Other'
-                      ].map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 220),
-              Container(
-                height: 50,
-                width: 270,
-                child: RaisedButton(
-
-                  shape: RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(18.0),
-                    side: BorderSide(color: Colors.black),
-                  ),
-                  color: Colors.redAccent[200],
-                  onPressed: () {
-                    Firestore.instance
-                        .collection('requests')
-                        .document()
-                        .setData({
-                      'Name': name,
-                      'Phone': phone,
-                      'Address': address,
-                      'Latitude': latitude,
-                      'Longitude': longitude,
-                      'Type': dropdownValue,
-                      'Uid': x,
-                      'Status': 'pending'
-                    });
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MyRequest()));
-                  },
-                  child: Text(
-                    'Make Request!',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  signIn() async {
+    //   String message;
+
+    try {
+      await _auth.signInWithEmailAndPassword(email: t1.text, password: t2.text);
+      FirebaseUser user = await _auth.currentUser();
+      x = user.uid;
+      showSnackbar('Logged in');
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyRequest()));
+    } catch (e) {
+      if (e is PlatformException) {
+        showSnackbar(e.message);
+      }
+    }
+//
+  }
+
+  void showSnackbar(String message) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
       ),
     );
   }
