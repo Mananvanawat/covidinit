@@ -3,6 +3,7 @@ import 'package:covidinit/register.dart';
 import 'package:covidinit/showRequest.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,11 +16,13 @@ class _LoginPageState extends State<LoginPage> {
   String dropdownValue = "User";
   TextEditingController t1 = new TextEditingController();
   TextEditingController t2 = new TextEditingController();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(title: Text('Login')),
       body: Center(
@@ -44,55 +47,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Row(
-                  children: <Widget>[
-                    Text('Login as:-'),
-                    SizedBox(
-                      width: 100,
-                    ),
-                    DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: Icon(Icons.arrow_downward),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.deepPurple),
-                      underline: Container(
-                        height: 2,
-                      ),
-                      onChanged: (String newValue) {
-                        setState(() {
-                          dropdownValue = newValue;
-                        });
-                      },
-                      items: <String>['User', 'Municipalty']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     Container(
                       child: RaisedButton(
                         onPressed: () {
                           signIn();
-                          if (dropdownValue == "User")
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MyRequest()));
-                          if (dropdownValue == "Municipalty")
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MyApp1()));
                         },
                         child: Text('Login'),
                       ),
@@ -120,12 +80,28 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   signIn() async {
+    //   String message;
+
     try {
-      _auth.signInWithEmailAndPassword(email: t1.text, password: t2.text);
+      await _auth.signInWithEmailAndPassword(email: t1.text, password: t2.text);
       FirebaseUser user = await _auth.currentUser();
       x = user.uid;
+      showSnackbar('Logged in');
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyRequest()));
     } catch (e) {
-      print('Error');
+      if (e is PlatformException) {
+        showSnackbar(e.message);
+      }
     }
+//
+  }
+
+  void showSnackbar(String message) {
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }
