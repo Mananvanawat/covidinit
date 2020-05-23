@@ -1,6 +1,7 @@
 # covidinit
 
-A new Flutter application.
+This application is created by me for a hackathon.
+It helps municipality of a locality to track covid suspects and patients and collect medical waste from their home so that proper disposal of medical waste should be done. 
 
 ## Getting Started
 
